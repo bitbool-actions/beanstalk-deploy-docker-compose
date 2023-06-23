@@ -28,15 +28,15 @@ runs:
       shell: bash 
       working-directory: ${{ inputs.BEANSTALK_ROOT }}
       run: |
-        for i in `find -type f -name "*.template"`; do echo envsubst \<"$i" \> ${i%.template} && echo rm $i ; done
+        for i in `find -type f -name "*.template"`; do envsubst <"$i" > ${i%.template} && rm $i ; done
 
     - name: Get Time
       id: time
-      uses: nanzm/get-time-action@v1.1
+      uses: nanzm/get-time-action@v2.0
       with:
         timeZone: 0
         format: 'YYYY-MM-DD_HH:mm:ss'
-        
+
     - name: create beanstalk zip
       shell: bash
       working-directory: ${{ inputs.BEANSTALK_ROOT }}
