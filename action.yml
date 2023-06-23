@@ -1,0 +1,49 @@
+name: "beanstalk deploy"
+description: "deploy to beanstalk"
+inputs: 
+  AWS_REGION: 
+    required: false
+    default: "eu-west-1"      
+  AWS_ACCESS_KEY:
+    required: true
+  AWS_SECRET_KEY: 
+    required: true
+  BEANSTALK_ROOT:
+    required: false
+    default: ".github/beanstalk"
+  WAIT_FOR_RECOVERY:
+    required: false
+    default: 120
+  BEANSTALK_APP: 
+    required: true
+  BEANSTALK_ENV:
+    required: true
+  SOURCE_TAG:
+    required: true
+runs:
+  using: "composite"
+  steps:
+
+    - name: env substitution
+      shell: bash 
+      working-directory: ${{ inputs.BEANSTALK_ROOT }}
+      run: |
+        for i in `find -type f -name "*.template"`; do echo envsubst \<"$i" \> ${i%.template} && echo rm $i ; done
+
+    - name: create beanstalk zip
+      shell: bash
+      working-directory: ${{ inputs.BEANSTALK_ROOT }}
+      run: |
+        zip -r ${{ github.workspace }}/app.zip .platform *
+
+    - name: Beanstalk Deploy for app
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+       aws_access_key: ${{inputs.AWS_ACCESS_KEY}}
+       aws_secret_key: ${{inputs.AWS_SECRET_KEY}}
+       application_name: ${{ inputs.BEANSTALK_APP }} #  ${{ env.PROJECT }}-${{ env.APP }}
+       environment_name: ${{ inputs.BEANSTALK_ENV }} #${{ env.PROJECT }}-${{ env.ENVIRONMENT }}-${{ env.APP }}
+       region: ${{ inputs.AWS_REGION }}
+       version_label: "${{ inputs.BEANSTALK_APP }}-${{ github.run_number }}-${{ steps.time.outputs.time }}-${{ inputs.SOURCE_TAG }}"
+       deployment_package: ${{ github.workspace }}/app.zip
+       wait_for_environment_recovery: ${{ inputs.WAIT_FOR_RECOVERY }}
