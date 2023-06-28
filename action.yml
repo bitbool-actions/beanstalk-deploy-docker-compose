@@ -26,6 +26,11 @@ runs:
 
     - name: env substitution
       shell: bash 
+      run: |
+        which envsubst || (apt-get update; apt-get -y install gettext-base)
+
+    - name: env substitution
+      shell: bash 
       working-directory: ${{ inputs.BEANSTALK_ROOT }}
       run: |
         for i in `find -type f -name "*.template"`; do envsubst <"$i" > ${i%.template} && rm $i ; done
