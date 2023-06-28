@@ -27,7 +27,7 @@ runs:
     - name: env substitution
       shell: bash 
       run: |
-        which envsubst || (apt-get update; apt-get -y install gettext-base)
+        which envsubst || (sudo apt-get update; sudo apt-get -y install --no-install-recommends gettext-base)
 
     - name: env substitution
       shell: bash 
