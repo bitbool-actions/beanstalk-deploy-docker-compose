@@ -20,6 +20,12 @@ inputs:
     required: true
   SOURCE_TAG:
     required: true
+  # DOCKER_REGISTRY:
+  #   required: true
+  #   default: ""
+  # DOCKER_REPO:
+  #   required: true
+  #   default: ""
 runs:
   using: "composite"
   steps:
@@ -33,7 +39,12 @@ runs:
       shell: bash 
       working-directory: ${{ inputs.BEANSTALK_ROOT }}
       run: |
-        for i in `find -type f -name "*.template"`; do envsubst <"$i" > ${i%.template} && rm $i ; done
+        for i in `find -type f -name "*.template"`; do 
+          echo Processing "$i"
+          envsubst <"$i" > ${i%.template} && rm $i 
+          echo Result
+          cat ${i%.template}
+        done
 
     - name: Get Time
       id: time
